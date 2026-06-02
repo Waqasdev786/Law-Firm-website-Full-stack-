@@ -30,13 +30,12 @@ class employeeController extends Controller
         return view('employee.index', compact('employees'));
     }
 
-      public function edit($id)
+    public function edit($id)
     {
         $employee = employee::findOrFail($id);
         return view('employee.edit', compact('employee'));
     }
 
-    // ✅ Update karo
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -48,22 +47,18 @@ class employeeController extends Controller
         $employee->username = $request->username;
         $employee->email    = $request->email;
 
-        // Password sirf tab update karo jab user ne likha ho
-        if($request->password) {
+        if ($request->password) {
             $employee->password = bcrypt($request->password);
         }
 
         $employee->save();
-
-        return redirect('/admin')->with('success', 'Record updated successfully!');
+        return redirect('/admin')->with('success', 'Record updated!');
     }
 
-    // ✅ Delete karo
     public function destroy($id)
     {
         $employee = employee::findOrFail($id);
         $employee->delete();
-
-        return redirect('/admin')->with('success', 'Record deleted successfully!');
+        return redirect('/admin')->with('success', 'Record deleted!');
     }
 }

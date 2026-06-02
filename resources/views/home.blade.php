@@ -1,12 +1,5 @@
-<?php
-if (auth()->check()) {
-    auth()->logout();
-    request()->session()->invalidate();
-    request()->session()->regenerateToken();
-    header('Location: /');
-    exit();
-}
-?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
