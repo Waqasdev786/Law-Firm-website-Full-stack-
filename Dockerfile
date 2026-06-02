@@ -1,3 +1,15 @@
+# Stage 1: Node.js build stage — compile Tailwind CSS via Vite
+FROM node:18-alpine AS node-builder
+
+WORKDIR /app
+
+COPY package.json package-lock.json* ./
+RUN npm install
+
+COPY . .
+RUN npm run build
+
+# Stage 2: PHP runtime stage
 FROM php:8.2-fpm
 
 RUN apt-get update && apt-get install -y \
@@ -9,6 +21,9 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www
 
 COPY . .
+
+# Copy compiled assets from the Node build stage
+COPY --from=node-builder /app/public/build ./public/build
 
 RUN composer install --no-dev --optimize-autoloader
 
