@@ -1,3 +1,16 @@
+FROM node:18 AS builder
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+RUN npm run build
+
+# PHP stage
 FROM php:8.2-fpm
 
 RUN apt-get update && apt-get install -y \
@@ -9,6 +22,9 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www
 
 COPY . .
+
+# Copy compiled assets from builder stage
+COPY --from=builder /app/public/build ./public/build
 
 RUN composer install --no-dev --optimize-autoloader
 
@@ -25,3 +41,4 @@ COPY nginx.conf /etc/nginx/sites-enabled/default
 EXPOSE 8080
 
 CMD service nginx start && php-fpm
+
