@@ -28,7 +28,10 @@ COPY --from=node-builder /app/public/build ./public/build
 RUN composer install --no-dev --optimize-autoloader
 
 RUN cp .env.example .env \
+    && sed -i 's/APP_ENV=local/APP_ENV=production/' .env \
+    && sed -i 's/APP_DEBUG=true/APP_DEBUG=false/' .env \
     && php artisan key:generate --force \
+    && php artisan migrate --force \
     && php artisan config:clear \
     && php artisan route:clear \
     && php artisan view:clear
