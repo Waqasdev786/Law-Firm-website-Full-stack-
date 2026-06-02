@@ -27,11 +27,21 @@ COPY --from=node-builder /app/public/build ./public/build
 
 RUN composer install --no-dev --optimize-autoloader
 
+# Set up .env with production values
 RUN cp .env.example .env \
-    && php artisan key:generate --force \
+    && sed -i 's/APP_ENV=local/APP_ENV=production/' .env \
+    && sed -i 's/APP_DEBUG=true/APP_DEBUG=false/' .env \
+    && php artisan key:generate --force
+
+# Run database migrations and cache all config for production
+RUN php artisan migrate --force \
     && php artisan config:clear \
+    && php artisan config:cache \
     && php artisan route:clear \
-    && php artisan view:clear
+    && php artisan route:cache \
+    && php artisan view:clear \
+    && php artisan view:cache \
+    && php artisan cache:clear
 
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
