@@ -28,10 +28,19 @@ COPY --from=node-builder /app/public/build ./public/build
 RUN composer install --no-dev --optimize-autoloader
 
 RUN cp .env.example .env \
-    && php artisan key:generate --force \
-    && php artisan config:clear \
+    && php artisan key:generate --force
+
+# Run database migrations
+RUN php artisan migrate --force
+
+# Clear all caches for production
+RUN php artisan config:clear \
+    && php artisan config:cache \
     && php artisan route:clear \
-    && php artisan view:clear
+    && php artisan route:cache \
+    && php artisan view:clear \
+    && php artisan view:cache \
+    && php artisan cache:clear
 
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
